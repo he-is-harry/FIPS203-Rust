@@ -1,0 +1,19 @@
+[package]
+name = "fips203-rust"
+version = "1.0.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = ["default-rng"]
+default-rng = ["rand_core/os_rng"]
+
+[dependencies]
+sha3 = { version = "0.10", default-features= false }
+rand_core = { version = "0.9", default-features = false }
+subtle = { version = "2.6", default-features = false, features = ["const-generics"] }
+
+[dev-dependencies]
+rand_chacha = "0.9"
