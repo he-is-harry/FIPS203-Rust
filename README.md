@@ -16,6 +16,8 @@ This crate provides:
 - Parameter sets for **ML-KEM-512**, **ML-KEM-768**, and **ML-KEM-1024**
 - Full key generation, encapsulation, and decapsulation operations
 - Custom RNG and default RNG's (using `OsRng`) are supported
+- All return values are automatically zeroized on drop
+> ⚠️ **Caveat:** Values converted into bytes are not automatically zeroized it is recommended to zeroize like in the example below.
 
 ---
 
@@ -43,6 +45,8 @@ fips203-rust = { path = "/path/to/FIPS203-Rust", default-features=false }
 ```rust
 // Import the library and desired parameter set
 use fips203_rust::{MlKem, MlKemParams::MlKem768};
+// Recommended zeroize library
+use zeroize::Zeroizing;
 
 // Default using OsRng
 let kem = MlKem::new(MlKem768);
@@ -50,17 +54,23 @@ let kem = MlKem::new(MlKem768);
 let (ek, dk) = kem.keygen().unwrap();
 let (ssk_enc, ct) = kem.encaps(&ek).unwrap();
 let ssk_dec = kem.decaps(&dk, &ct);
+// It is recommended to zeroize any results converted into bytes (results above are automatically zeroized)
+let ssk_enc_bytes = Zeroizing::new(ssk_enc.into_bytes());
+let ssk_dec_bytes = Zeroizing::new(ssk_dec.into_bytes());
 
-assert_eq!(ssk_enc, ssk_dec);
+assert_eq!(ssk_enc_bytes, ssk_dec_bytes);
 
 // Custom RNG
 let mut rng = ChaCha20Rng::from_os_rng();
 let kem = MlKem::new(MlKem768);
 
-let (ek, dk) = kem.keygen().unwrap();
+let (ek, dk) = kem.keygen_with_rng(&mut rng).unwrap();
 let (ssk_enc, ct) = kem.encaps_with_rng(&ek, &mut rng).unwrap();
 let ssk_dec = kem.decaps(&dk, &ct);
+// It is recommended to zeroize any results converted into bytes (results above are automatically zeroized)
+let ssk_enc_bytes = Zeroizing::new(ssk_enc.into_bytes());
+let ssk_dec_bytes = Zeroizing::new(ssk_dec.into_bytes());
 
-assert_eq!(ssk_enc, ssk_dec);
+assert_eq!(ssk_enc_bytes, ssk_dec_bytes);
 ```
 

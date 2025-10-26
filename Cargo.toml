@@ -9,11 +9,14 @@ crate-type = ["cdylib", "rlib"]
 [features]
 default = ["default-rng"]
 default-rng = ["rand_core/os_rng"]
+wasm = ["getrandom/wasm_js"]
 
 [dependencies]
-sha3 = { version = "0.10", default-features= false }
+sha3 = { version = "0.10", default-features = false }
 rand_core = { version = "0.9", default-features = false }
+getrandom = { version = "0.3" }
 subtle = { version = "2.6", default-features = false, features = ["const-generics"] }
+zeroize = { version = "1.8.0", default-features = false, features = ["zeroize_derive"] }
 
 [dev-dependencies]
 rand_chacha = "0.9"
